@@ -13,7 +13,7 @@ Movements = Literal['L', 'R', 'F', 'B']
 
 class Game:
     GRID_SIZE = 5
-    NOTHING_BLOCK = 'x'
+    NOTHING_BLOCK = '-'
 
     def __init__(self) -> None:
         """The game class handles the game instance."""
@@ -27,7 +27,7 @@ class Game:
         # self.get_characters(player=1)
         self.__p1_characters = ['H1', 'P2', 'P5', 'P4', 'P1']
         # self.get_characters(player=2)
-        self.__p2_characters = ['P2', 'P1', 'P3', 'P5', 'P4']
+        self.__p2_characters = ['P2', 'P1', 'P3', 'H2', 'P4']
 
         self.__grid = self.create_grid()
 
@@ -91,11 +91,10 @@ class Game:
         """Get the full player's character name from local character name."""
         return f'{self.__player_turn}-{character}'
 
-    def velocity(self, character: str) -> Tuple[Literal[1, -1], int]:
+    def velocity(self, character: str) -> Tuple[int, Literal[1, -1]]:
         """Movement for each character as velocity is handled here."""
         local_direction: Literal[1, -1] = \
             1 if self.__player_turn == 'A' else -1
-        print(character)
         character_type = character[0]
         units = 0
         if character_type == 'P':
@@ -114,30 +113,40 @@ class Game:
             for c in range(len(self.__grid[r])):
                 if self.__grid[r][c] == target:
                     velocity, local_direction = self.velocity(character)
-                    if direction == 'L':
-                        p = c
-                        while p != c + velocity:
-                            self.__grid[r][p] = Game.NOTHING_BLOCK
-                            p += local_direction
-                        self.__grid[r][c + velocity] = target
-                    elif direction == 'R':
-                        p = c
-                        while p != c - velocity:
-                            self.__grid[r][p] = Game.NOTHING_BLOCK
-                            p -= local_direction
-                        self.__grid[r][c - velocity] = target
-                    elif direction == 'F':
-                        p = r
-                        while p != r - velocity:
-                            self.__grid[p][c] = Game.NOTHING_BLOCK
-                            p -= local_direction
-                        self.__grid[r - velocity][c] = target
-                    elif direction == 'B':
-                        p = r
-                        while p != r + velocity:
-                            self.__grid[p][c] = Game.NOTHING_BLOCK
-                            p += local_direction
-                        self.__grid[r + velocity][c] = target
+                    if character == 'H2':
+                        if direction == 'FL':
+                            self.__grid[r - velocity][c + local_direction] = target
+                        elif direction == 'FR':
+                            self.__grid[r - velocity][c - local_direction] = target
+                        elif direction == 'BL':
+                            self.__grid[r + velocity][c + local_direction] = target
+                        elif direction == 'BR':
+                            self.__grid[r + velocity][c - local_direction] = target
+                    elif character[0] in {'H', 'P'}:
+                        if direction == 'L':
+                            p = c
+                            while p != c + velocity:
+                                self.__grid[r][p] = Game.NOTHING_BLOCK
+                                p += local_direction
+                            self.__grid[r][c + velocity] = target
+                        elif direction == 'R':
+                            p = c
+                            while p != c - velocity:
+                                self.__grid[r][p] = Game.NOTHING_BLOCK
+                                p -= local_direction
+                            self.__grid[r][c - velocity] = target
+                        elif direction == 'F':
+                            p = r
+                            while p != r - velocity:
+                                self.__grid[p][c] = Game.NOTHING_BLOCK
+                                p -= local_direction
+                            self.__grid[r - velocity][c] = target
+                        elif direction == 'B':
+                            p = r
+                            while p != r + velocity:
+                                self.__grid[p][c] = Game.NOTHING_BLOCK
+                                p += local_direction
+                            self.__grid[r + velocity][c] = target
                     else:
                         raise InvalidGameInputFormat(
                             "Invalid movement. Please use L, R, F, B."
@@ -164,7 +173,7 @@ class Game:
 
         character, direction = movement.split(':')
 
-        if direction not in {'L', 'R', 'F', 'B'}:
+        if direction not in {'L', 'R', 'F', 'B', 'FL', 'FR', 'BL', 'BR'}:
             raise InvalidGameInputFormat(
                 "Invalid movement format <character_name>:<move> (e.g:- P1:L, P2:R, P3:F, P3:B)"
             )
