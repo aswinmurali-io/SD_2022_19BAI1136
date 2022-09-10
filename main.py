@@ -84,6 +84,12 @@ class Game:
         """Get the full player's character name from local character name."""
         return f'{self.__player_turn}-{character}'
 
+    def velocity(self, character: str) -> int:
+        local_direction: Literal[1, -1] = \
+            1 if self.__player_turn == 'A' else -1
+        units = 1 if character[0] == 'P' else 0
+        return local_direction * units
+
     def move(self, character: str, direction: Movements) -> Grid:
         """Move the character in a specific direction.
         Refer `Movements` type for possible values.
@@ -93,20 +99,21 @@ class Game:
         for r in range(len(self.__grid)):
             for c in range(len(self.__grid[r])):
                 if self.__grid[r][c] == target:
+                    velocity = self.velocity(character)
                     if direction == 'L':
-                        self.__grid[r][c + 1] = target
+                        self.__grid[r][c + velocity] = target
                     elif direction == 'R':
-                        self.__grid[r][c - 1] = target
+                        self.__grid[r][c - velocity] = target
                     elif direction == 'F':
-                        self.__grid[r - 1][c] = target
+                        self.__grid[r - velocity][c] = target
                     elif direction == 'B':
-                        self.__grid[r + 1][c] = target
+                        self.__grid[r + velocity][c] = target
                     else:
                         raise InvalidGameInputFormat(
                             "Invalid movement. Please use L, R, F, B."
                         )
                     self.__grid[r][c] = 'x'
-
+                    return self.__grid
         return self.__grid
 
     def display(self) -> None:
@@ -133,6 +140,7 @@ class Game:
             )
 
         # Move the character & display the grid.
+        print(character, direction)
         self.move(character, direction)
         self.display()
 
