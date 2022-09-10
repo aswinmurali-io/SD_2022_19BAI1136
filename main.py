@@ -13,6 +13,7 @@ Movements = Literal['L', 'R', 'F', 'B']
 
 class Game:
     GRID_SIZE = 5
+    NOTHING_BLOCK = 'x'
 
     def __init__(self) -> None:
         """The game class handles the game instance."""
@@ -24,7 +25,7 @@ class Game:
         # Player 2 -> P2, P1, P3, P5, P4
 
         # self.get_characters(player=1)
-        self.__p1_characters = ['P3', 'P2', 'P5', 'P4', 'P1']
+        self.__p1_characters = ['H1', 'P2', 'P5', 'P4', 'P1']
         # self.get_characters(player=2)
         self.__p2_characters = ['P2', 'P1', 'P3', 'P5', 'P4']
 
@@ -36,6 +37,9 @@ class Game:
         self.place_characters(
             player='B', characters=self.__p2_characters
         )
+
+        self.p1_score = 0
+        self.p2_score = 0
 
         self.run()
 
@@ -64,7 +68,10 @@ class Game:
     def create_grid(self) -> Grid:
         """Generate NxN grid. N is defined as `Game.GRID_SIZE`."""
 
-        return [['x'] * Game.GRID_SIZE for _ in range(Game.GRID_SIZE)]
+        return [
+            [Game.NOTHING_BLOCK] * Game.GRID_SIZE
+            for _ in range(Game.GRID_SIZE)
+        ]
 
     def place_characters(self, player: Players, characters: list[str]) -> Grid:
         """Place the characters in the grid.
@@ -85,9 +92,16 @@ class Game:
         return f'{self.__player_turn}-{character}'
 
     def velocity(self, character: str) -> int:
+        """Movement for each character as velocity is handled here."""
         local_direction: Literal[1, -1] = \
             1 if self.__player_turn == 'A' else -1
-        units = 1 if character[0] == 'P' else 0
+        print(character)
+        character_type = character[0]
+        units = 0
+        if character_type == 'P':
+            units = 1
+        # elif character_type == 'H':
+        #     units = 2
         return local_direction * units
 
     def move(self, character: str, direction: Movements) -> Grid:
@@ -112,7 +126,7 @@ class Game:
                         raise InvalidGameInputFormat(
                             "Invalid movement. Please use L, R, F, B."
                         )
-                    self.__grid[r][c] = 'x'
+                    self.__grid[r][c] = Game.NOTHING_BLOCK
                     return self.__grid
         return self.__grid
 
