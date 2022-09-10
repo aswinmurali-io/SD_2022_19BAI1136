@@ -2,7 +2,7 @@
 
 import itertools
 
-from typing import Literal
+from typing import Literal, Tuple, Union
 
 from exceptions import InvalidGameInputFormat
 
@@ -91,7 +91,7 @@ class Game:
         """Get the full player's character name from local character name."""
         return f'{self.__player_turn}-{character}'
 
-    def velocity(self, character: str) -> int:
+    def velocity(self, character: str) -> Tuple[Literal[1, -1], int]:
         """Movement for each character as velocity is handled here."""
         local_direction: Literal[1, -1] = \
             1 if self.__player_turn == 'A' else -1
@@ -100,9 +100,9 @@ class Game:
         units = 0
         if character_type == 'P':
             units = 1
-        # elif character_type == 'H':
-        #     units = 2
-        return local_direction * units
+        elif character_type == 'H':
+            units = 2
+        return local_direction * units, local_direction
 
     def move(self, character: str, direction: Movements) -> Grid:
         """Move the character in a specific direction.
@@ -113,14 +113,30 @@ class Game:
         for r in range(len(self.__grid)):
             for c in range(len(self.__grid[r])):
                 if self.__grid[r][c] == target:
-                    velocity = self.velocity(character)
+                    velocity, local_direction = self.velocity(character)
                     if direction == 'L':
+                        p = c
+                        while p != c + velocity:
+                            self.__grid[r][p] = Game.NOTHING_BLOCK
+                            p += local_direction
                         self.__grid[r][c + velocity] = target
                     elif direction == 'R':
+                        p = c
+                        while p != c - velocity:
+                            self.__grid[r][p] = Game.NOTHING_BLOCK
+                            p -= local_direction
                         self.__grid[r][c - velocity] = target
                     elif direction == 'F':
+                        p = r
+                        while p != r - velocity:
+                            self.__grid[p][c] = Game.NOTHING_BLOCK
+                            p -= local_direction
                         self.__grid[r - velocity][c] = target
                     elif direction == 'B':
+                        p = r
+                        while p != r + velocity:
+                            self.__grid[p][c] = Game.NOTHING_BLOCK
+                            p += local_direction
                         self.__grid[r + velocity][c] = target
                     else:
                         raise InvalidGameInputFormat(
@@ -154,7 +170,6 @@ class Game:
             )
 
         # Move the character & display the grid.
-        print(character, direction)
         self.move(character, direction)
         self.display()
 
