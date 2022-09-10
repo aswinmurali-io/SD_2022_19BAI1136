@@ -21,13 +21,13 @@ class Game:
         # -----------------------------------
         # Test Cases
         # -----------------------------------
-        # Player 1 -> P3, P2, P5, P4, P1
+        # Player 1 -> P3, P2, P5, H1, P1
         # Player 2 -> P2, P1, P3, P5, P4
 
-        # self.get_characters(player=1)
-        self.__p1_characters = ['H1', 'P2', 'P5', 'P4', 'P1']
-        # self.get_characters(player=2)
-        self.__p2_characters = ['P2', 'P1', 'P3', 'H2', 'P4']
+        
+        self.__p1_characters = self.get_characters(player='A')
+        
+        self.__p2_characters = self.get_characters(player='B')
 
         self.__grid = self.create_grid()
 
