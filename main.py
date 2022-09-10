@@ -23,10 +23,10 @@ class Game:
         # Player 1 -> P3, P2, P5, P4, P1
         # Player 2 -> P2, P1, P3, P5, P4
 
-        self.__p1_characters = ['P2', 'P1', 'P3',
-                                'P5', 'P4']  # self.get_characters(player=1)
-        self.__p2_characters = ['P3', 'P2', 'P5',
-                                'P4', 'P1']  # self.get_characters(player=2)
+        # self.get_characters(player=1)
+        self.__p1_characters = ['P3', 'P2', 'P5', 'P4', 'P1']
+        # self.get_characters(player=2)
+        self.__p2_characters = ['P2', 'P1', 'P3', 'P5', 'P4']
 
         self.__grid = self.create_grid()
 
@@ -37,10 +37,18 @@ class Game:
             player='B', characters=self.__p2_characters
         )
 
+        self.run()
+
+    def run(self) -> None:
+        """Run the game."""
         self.__player_turn: Players = 'A'
 
         self.display()
-        self.turn()
+        try:
+            while True:
+                self.turn()
+        except KeyboardInterrupt:
+            print('Game Interrupted')
 
     def get_characters(self, player: Players) -> list[str]:
         """Get the player characters from input as list."""
@@ -72,10 +80,33 @@ class Game:
                 self.__grid[r][c] = f'B-{characters[c]}'
         return self.__grid
 
+    def get_player_character_name_from(self, character: str) -> str:
+        """Get the full player's character name from local character name."""
+        return f'{self.__player_turn}-{character}'
+
     def move(self, character: str, direction: Movements) -> Grid:
         """Move the character in a specific direction.
         Refer `Movements` type for possible values.
         """
+        target = self.get_player_character_name_from(character)
+
+        for r in range(len(self.__grid)):
+            for c in range(len(self.__grid[r])):
+                if self.__grid[r][c] == target:
+                    if direction == 'L':
+                        self.__grid[r][c + 1] = target
+                    elif direction == 'R':
+                        self.__grid[r][c - 1] = target
+                    elif direction == 'F':
+                        self.__grid[r - 1][c] = target
+                    elif direction == 'B':
+                        self.__grid[r + 1][c] = target
+                    else:
+                        raise InvalidGameInputFormat(
+                            "Invalid movement. Please use L, R, F, B."
+                        )
+                    self.__grid[r][c] = 'x'
+
         return self.__grid
 
     def display(self) -> None:
